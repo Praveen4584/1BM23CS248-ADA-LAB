@@ -1,0 +1,86 @@
+#include <stdio.h>
+
+#define MAX 10
+
+void printPermutation(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+int largestMobile(int arr[], int dir[], int n) {
+    int largest = -1;
+    for (int i = 0; i < n; i++) {
+        if (dir[i] == -1 && i > 0 && arr[i] > arr[i - 1] && arr[i] > largest) {
+            largest = arr[i];
+        }
+        if (dir[i] == 1 && i < n - 1 && arr[i] > arr[i + 1] && arr[i] > largest) {
+            largest = arr[i];
+        }
+    }
+    return largest;
+}
+
+void swap(int arr[], int dir[], int i, int j) {
+    int temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+
+    temp = dir[i];
+    dir[i] = dir[j];
+    dir[j] = temp;
+}
+
+void johnsonTrotter(int n) {
+    int arr[MAX], dir[MAX];
+
+    for (int i = 0; i < n; i++) {
+        arr[i] = i + 1;
+        dir[i] = -1;
+    }
+
+    printPermutation(arr, n);
+
+    while (1) {
+        int largest = largestMobile(arr, dir, n);
+
+        if (largest == -1) {
+            break;
+        }
+
+        int idx = -1;
+        for (int i = 0; i < n; i++) {
+            if (arr[i] == largest) {
+                idx = i;
+                break;
+            }
+        }
+
+        int newIdx = idx + dir[idx];
+        swap(arr, dir, idx, newIdx);
+
+        printPermutation(arr, n);
+
+        for (int i = 0; i < n; i++) {
+            if (arr[i] > largest) {
+                dir[i] = -dir[i];
+            }
+        }
+    }
+}
+
+int main() {
+    int n;
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    if (n > MAX) {
+        printf("The number of elements exceeds the maximum limit of %d.\n", MAX);
+        return -1;
+    }
+
+    johnsonTrotter(n);
+
+    return 0;
+}
