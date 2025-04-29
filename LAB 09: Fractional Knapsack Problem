@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Item {
+    int value;
+    int weight;
+    double valuePerWeight;
+    int index;
+};
+
+int compareItems(const void *a, const void *b) {
+    struct Item *itemA = (struct Item *)a;
+    struct Item *itemB = (struct Item *)b;
+    if (itemA->valuePerWeight < itemB->valuePerWeight)
+        return 1;
+    else if (itemA->valuePerWeight > itemB->valuePerWeight)
+        return -1;
+    else
+        return 0;
+}
+
+double fractionalKnapsack(int capacity, struct Item items[], int n) {
+    for (int i = 0; i < n; i++) {
+        items[i].valuePerWeight = (double)items[i].value / items[i].weight;
+        items[i].index = i;
+    }
+
+    qsort(items, n, sizeof(struct Item), compareItems);
+
+    double totalValue = 0.0;
+    int currentWeight = 0;
+
+    printf("Items considered (value, weight, fraction):\n");
+
+    for (int i = 0; i < n; i++) {
+        if (currentWeight + items[i].weight <= capacity) {
+            currentWeight += items[i].weight;
+            totalValue += items[i].value;
+            printf("(%d, %d, 1.0) ", items[i].value, items[i].weight);
+        } else {
+            int remainingCapacity = capacity - currentWeight;
+            double fraction = (double)remainingCapacity / items[i].weight;
+            totalValue += items[i].value * fraction;
+            printf("(%d, %d, %.2f) ", items[i].value, items[i].weight, fraction);
+            break;
+        }
+    }
+
+    printf("\nMaximum value in Knapsack = %.2f\n", totalValue);
+    return totalValue;
+}
+
+int main() {
+    int n;
+    int capacity;
+
+    printf("Enter the number of items: ");
+    scanf("%d", &n);
+
+    struct Item items[n];
+
+    printf("Enter the value and weight for each item:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Item %d: Value: ", i + 1);
+        scanf("%d", &items[i].value);
+        printf("        Weight: ");
+        scanf("%d", &items[i].weight);
+    }
+
+    printf("Enter the capacity of the knapsack: ");
+    scanf("%d", &capacity);
+
+    fractionalKnapsack(capacity, items, n);
+
+    return 0;
+}
