@@ -1,1 +1,90 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX_VERTICES 100
+
+int minDistance(int dist[], int visited[], int n) {
+    int min = INT_MAX, minIndex;
+    for (int i = 0; i < n; i++) {
+        if (!visited[i] && dist[i] < min) {
+            min = dist[i];
+            minIndex = i;
+        }
+    }
+    return minIndex;
+}
+
+void dijkstra(int graph[MAX_VERTICES][MAX_VERTICES], int n, int src) {
+    int dist[n]; 
+    int visited[n]; 
+    int prev[n]; 
+
+    for (int i = 0; i < n; i++) {
+        dist[i] = INT_MAX;
+        visited[i] = 0;
+        prev[i] = -1;
+    }
+
+    dist[src] = 0; 
+
+    for (int count = 0; count < n - 1; count++) {
+        int u = minDistance(dist, visited, n);
+
+        visited[u] = 1;
+
+        for (int v = 0; v < n; v++) {
+            if (!visited[v] && graph[u][v] && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v]) {
+                dist[v] = dist[u] + graph[u][v];
+                prev[v] = u;
+            }
+        }
+    }
+
+    printf("\nShortest distances from vertex %d:\n", src);
+    for (int i = 0; i < n; i++) {
+        if (dist[i] == INT_MAX) {
+            printf("No path to vertex %d\n", i);
+        } else {
+            printf("Distance to vertex %d: %d\n", i, dist[i]);
+            printf("Path: ");
+            int path[MAX_VERTICES];
+            int j = 0;
+            for (int v = i; v != -1; v = prev[v]) {
+                path[j++] = v;
+            }
+            for (int k = j - 1; k >= 0; k--) {
+                printf("%d ", path[k]);
+            }
+            printf("\n");
+        }
+    }
+}
+
+int main() {
+    int n, m;
+
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    int graph[MAX_VERTICES][MAX_VERTICES] = {0}; 
+
+    printf("Enter the number of edges: ");
+    scanf("%d", &m);
+
+    printf("Enter the edges (u, v, weight) format:\n");
+    for (int i = 0; i < m; i++) {
+        int u, v, weight;
+        scanf("%d %d %d", &u, &v, &weight);
+        graph[u][v] = weight;
+        graph[v][u] = weight; 
+    }
+
+    int src;
+    printf("Enter the source vertex: ");
+    scanf("%d", &src);
+
+    dijkstra(graph, n, src);
+
+    return 0;
+}
 
