@@ -1,1 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+struct Edge {
+    int u, v, weight;
+};
+
+struct DisjointSet {
+    int parent[MAX];
+    int rank[MAX];
+};
+
+void initSet(struct DisjointSet *ds, int n) {
+    for (int i = 0; i < n; i++) {
+        ds->parent[i] = i;
+        ds->rank[i] = 0;
+    }
+}
+
+int find(struct DisjointSet *ds, int x) {
+    if (ds->parent[x] != x) {
+        ds->parent[x] = find(ds, ds->parent[x]);
+    }
+    return ds->parent[x];
+}
+
+void unionSets(struct DisjointSet *ds, int x, int y) {
+    int rootX = find(ds, x);
+    int rootY = find(ds, y);
+
+    if (rootX != rootY) {
+        if (ds->rank[rootX] > ds->rank[rootY]) {
+            ds->parent[rootY] = rootX;
+        } else if (ds->rank[rootX] < ds->rank[rootY]) {
+            ds->parent[rootX] = rootY;
+        } else {
+            ds->parent[rootY] = rootX;
+            ds->rank[rootX]++;
+        }
+    }
+}
+
+int compare(const void *a, const void *b) {
+    return ((struct Edge *)a)->weight - ((struct Edge *)b)->weight;
+}
+
+void kruskal(struct Edge edges[], int n, int m) {
+    struct DisjointSet ds;
+    initSet(&ds, n);
+
+    qsort(edges, m, sizeof(struct Edge), compare);
+
+    int mstWeight = 0;
+    printf("\nEdges in MST:\n");
+
+    for (int i = 0; i < m; i++) {
+        int u = edges[i].u;
+        int v = edges[i].v;
+        
+        if (find(&ds, u) != find(&ds, v)) {
+            printf("%d -- %d == %d\n", u, v, edges[i].weight);
+            mstWeight += edges[i].weight;
+            unionSets(&ds, u, v);
+        }
+    }
+
+    printf("\nWeight of MST: %d\n", mstWeight);
+}
+
+int main() {
+    int n, m;
+
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter the number of edges: ");
+    scanf("%d", &m);
+
+    struct Edge edges[m];
+
+    printf("Enter the edges (u, v, weight):\n");
+    for (int i = 0; i < m; i++) {
+        printf("Edge %d:\n", i + 1);
+        scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].weight);
+    }
+
+    kruskal(edges, n, m);
+
+    return 0;
+}
+
 
